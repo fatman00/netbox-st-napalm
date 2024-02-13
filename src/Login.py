@@ -145,7 +145,7 @@ if "netbox_url" in st.session_state and "netbox_token" in st.session_state:
     selected_devices = st.sidebar.multiselect("Select devices", options=newDevices, format_func=selected_devices_format)
     with st.expander("Show data"):
         st.write(selected_devices)
-    if st.toggle("Connection Allowed", False):
+    if st.sidebar.toggle("Connection Allowed", False):
         for device in selected_devices:
             try:
                 output = nap_get_facts(device["ip"], cli_username, cli_password)
@@ -155,32 +155,32 @@ if "netbox_url" in st.session_state and "netbox_token" in st.session_state:
                     scol1, scol2, scol3 = st.columns(3)
                     ncol1, ncol2, ncol3 = st.columns(3)
                     hcol1.write("Napalm:")
-                    scol1.write(f"{output["serial_number"]}")
-                    ncol1.write(f"{output["hostname"]}")
+                    scol1.write(f'{output["serial_number"]}')
+                    ncol1.write(f'{output["hostname"]}')
 
                     hcol3.write("Netbox:")
                     if output["serial_number"] == device["serial"]:
-                        scol3.write(f":green[{device["serial"]}]")
+                        scol3.write(f':green[{device["serial"]}]')
                         dis = True
                     else:
-                        scol3.write(f":red[{device["serial"]}]")
+                        scol3.write(f':red[{device["serial"]}]')
                         dis = False
 
-                    scol2.button("-> Sync ->", key=f"sn_sync_{output["hostname"]}", use_container_width=True, disabled=dis, on_click=nb_dev_patch, args=(device["id"], "serial", output["serial_number"]))
+                    scol2.button("-> Sync ->", key=f'sn_sync_{output["hostname"]}', use_container_width=True, disabled=dis, on_click=nb_dev_patch, args=(device["id"], "serial", output["serial_number"]))
 
                     if output["hostname"] == device["name"]:
-                        ncol3.write(f":green[{device["name"]}]")
+                        ncol3.write(f':green[{device["name"]}]')
                         dis = True
                     else:
-                        ncol3.write(f":red[{device["name"]}]")
+                        ncol3.write(f':red[{device["name"]}]')
                         dis = False
 
-                    ncol2.button("-> Sync ->", key=f"name_sync_{output["hostname"]}", use_container_width=True, disabled=dis, on_click=nb_dev_patch, args=(device["id"], "name", output["hostname"]))
+                    ncol2.button("-> Sync ->", key=f'name_sync_{output["hostname"]}', use_container_width=True, disabled=dis, on_click=nb_dev_patch, args=(device["id"], "name", output["hostname"]))
 
                     st.divider()
                     
 
-                    with st.expander(f"Raw Fact Data: {output["hostname"]}"):
+                    with st.expander(f'Raw Fact Data: {output["hostname"]}'):
                         st.write(output)
 
                     #with st.expander(f"Raw Interface Data: {output["hostname"]}"):

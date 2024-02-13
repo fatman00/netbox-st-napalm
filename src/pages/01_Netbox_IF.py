@@ -117,7 +117,7 @@ def nap_get_interfaces_ip(host, username, password):
     return output
 
 def selected_site_format(option):
-    return f"{option["name"]}({option["short"]})"
+    return f'{option["name"]}({option["short"]})'
 
 def selected_devices_format(option):
     return option["name"]
@@ -270,7 +270,7 @@ if "netbox_url" in st.session_state and "netbox_token" in st.session_state:
                 output = nap_get_facts(device["ip"], cli_username, cli_password)
             except Exception as error:
                 with st.container(border=True):
-                    st.subheader(f"{device["name"]}")
+                    st.subheader(f'{device["name"]}')
                     st.error(error)
                 continue
             interfaces = nap_get_interfaces(device["ip"], cli_username, cli_password)
@@ -279,16 +279,16 @@ if "netbox_url" in st.session_state and "netbox_token" in st.session_state:
             ifmerge = merge_if(interfaces, allNbIf)
             with st.container(border=True):
                 hcol1, hcol2, hcol3 = st.columns([3,1,1])
-                hcol1.subheader(f"{device["name"]}")
-                hcol2.link_button("Netbox", f"https://netbox.dccat.dk/dcim/devices/{device["id"]}/", use_container_width=True)
-                fixall = hcol3.button("-> Fix all ->", key=f"{device["id"]}_sync_fixit", use_container_width=True)
+                hcol1.subheader(f'{device["name"]}')
+                hcol2.link_button("Netbox", f'https://netbox.dccat.dk/dcim/devices/{device["id"]}/', use_container_width=True)
+                fixall = hcol3.button("-> Fix all ->", key=f'{device["id"]}_sync_fixit', use_container_width=True)
                 
                 
                 # Find all interfaces that are missing in Netbox but exist on the devices
                 missingif = [interface for interface in ifmerge if interface["nb_name"] is None]
                 with st.expander(f"Missing interfaces...({len(missingif)})"):
                     st.dataframe(missingif, use_container_width=True)
-                    if st.button("-> add ->", key=f"{device["id"]}_sync_add", use_container_width=True, disabled=not len(missingif)) or fixall:
+                    if st.button("-> add ->", key=f'{device["id"]}_sync_add', use_container_width=True, disabled=not len(missingif)) or fixall:
                         nb = pynetbox.api(st.session_state["netbox_url"], token=st.session_state["netbox_token"])  # Read only token
                         nb.http_session.verify = False
                         #st.sidebar.write(updateif)
@@ -304,9 +304,9 @@ if "netbox_url" in st.session_state and "netbox_token" in st.session_state:
 
                 # Find all interfaces where description is not the same on device and Netbox
                 updateif = [interface for interface in ifmerge if interface["nb_desc"] != interface["nap_desc"] and interface["nb_name"] is not None]
-                with st.expander(f"Update Netbox Data...({len(updateif)})"):
+                with st.expander(f'Update Netbox Data...({len(updateif)})'):
                     st.dataframe(updateif, use_container_width=True)
-                    if st.button("-> Sync ->", key=f"{device["id"]}_sync_update", use_container_width=True, disabled=not len(updateif)) or fixall:
+                    if st.button("-> Sync ->", key=f'{device["id"]}_sync_update', use_container_width=True, disabled=not len(updateif)) or fixall:
                         nb = pynetbox.api(st.session_state["netbox_url"], token=st.session_state["netbox_token"])  # Read only token
                         nb.http_session.verify = False
                         #st.sidebar.write(updateif)
@@ -323,11 +323,11 @@ if "netbox_url" in st.session_state and "netbox_token" in st.session_state:
                 delif = [interface for interface in allNbIf if str(interface) not in nap_name]
                 with st.expander(f"Delete Netbox Data...({len(delif)})"):
                     st.write([int.name for int in delif])
-                    if st.button("-> Delete ->", key=f"{device["id"]}_sync_del", use_container_width=True, disabled=not len(delif)) or fixall:
+                    if st.button("-> Delete ->", key=f'{device["id"]}_sync_del', use_container_width=True, disabled=not len(delif)) or fixall:
                         nb = pynetbox.api(st.session_state["netbox_url"], token=st.session_state["netbox_token"])  # Read only token
                         nb.http_session.verify = False
                         #st.sidebar.write(updateif)
                         nb.dcim.interfaces.delete([int.id for int in delif])
                 
-                with st.expander(f"Raw Interface Data: {output["hostname"]}"):
+                with st.expander(f'Raw Interface Data: {output["hostname"]}'):
                     st.write(interfaces)

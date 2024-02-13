@@ -143,7 +143,7 @@ def nap_get_interfaces_ip(host, username, password):
     return output
 
 def selected_site_format(option):
-    return f"{option["name"]}({option["short"]})"
+    return f'{option["name"]}({option["short"]})'
 
 def selected_devices_format(option):
     return option["name"]
@@ -244,15 +244,15 @@ if "netbox_url" in st.session_state and "netbox_token" in st.session_state:
                 napIps = nap_get_interfaces_ip(device["ip"], cli_username, cli_password)
             except Exception as error:
                 with st.container(border=True):
-                    st.subheader(f"{device["name"]}")
+                    st.subheader(f'{device["name"]}')
                     st.error(error)
                 continue
             
             with st.container(border=True):
                 hcol1, hcol2, hcol3 = st.columns([3,1,1])
-                hcol1.subheader(f"{device["name"]}")
-                hcol2.link_button("Netbox", f"https://netbox.dccat.dk/dcim/devices/{device["id"]}/", use_container_width=True)
-                fixall = hcol3.button("-> Fix all ->", key=f"{device["id"]}_sync_fixit", use_container_width=True, disabled=True)
+                hcol1.subheader(f'{device["name"]}')
+                hcol2.link_button("Netbox", f'https://netbox.dccat.dk/dcim/devices/{device["id"]}/', use_container_width=True)
+                fixall = hcol3.button("-> Fix all ->", key=f'{device["id"]}_sync_fixit', use_container_width=True, disabled=True)
                 ipData = []
                 allNbIf=nbwrapper_interface_all(device["id"])
                 for interface in napIps.keys():
@@ -273,9 +273,9 @@ if "netbox_url" in st.session_state and "netbox_token" in st.session_state:
                 st.dataframe(ipData, use_container_width=True)
                 missingip = [ip for ip in ipData if ip["nbif"] != ip["nbipif"]]
                 missingip = [dict(item, **{'update': True}) for item in missingip]
-                missingip = st.data_editor(missingip, use_container_width=True, key=f"{device["id"]}_sync_edit", column_order=["update", "ifname", "ipv4", "nbif", "nbipif", "nbip", "nbipaddress"])
+                missingip = st.data_editor(missingip, use_container_width=True, key=f'{device["id"]}_sync_edit', column_order=["update", "ifname", "ipv4", "nbif", "nbipif", "nbip", "nbipaddress"])
                 missingip = [item for item in missingip if item["update"]]
-                if st.button("-> add ->", key=f"{device["id"]}_sync_add", use_container_width=True, disabled=not len(missingip)):
+                if st.button("-> add ->", key=f'{device["id"]}_sync_add', use_container_width=True, disabled=not len(missingip)):
                     nb = pynetbox.api(st.session_state["netbox_url"], token=st.session_state["netbox_token"])  # Read only token
                     nb.http_session.verify = False
                     ipadder = []
@@ -300,5 +300,5 @@ if "netbox_url" in st.session_state and "netbox_token" in st.session_state:
                 #nbwrapper_interface(url, token, dev_id, ifname=None):
                 
                 
-                with st.expander(f"Raw Interface IP Data: {device["name"]}"):
+                with st.expander(f'Raw Interface IP Data: {device["name"]}'):
                     st.write(napIps)
