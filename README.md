@@ -13,8 +13,10 @@
 ```st-netbox$ source .venv/bin/activate```
 
 ## Install all requirements
-```st-netbox$ pip install -r requirements.txt 
-st-netbox$ pip install pyats[full]```
+```
+st-netbox$ pip install -r requirements.txt 
+st-netbox$ pip install pyats[full]
+```
 
 ## Start streamlit
 ```st-netbox$ streamlit run src/Login.py```
