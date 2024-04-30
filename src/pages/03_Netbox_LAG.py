@@ -104,6 +104,31 @@ def nbwrapper_interface_all(dev_id):
     else:
         return None
 
+@st.cache_data
+def atswrapper_interfaces(dev_ip, cli_username, cli_password):
+    atsinterfaces = None
+    testbed = loader.load(
+        {
+            "devices": {
+                device["name"]: {
+                    "connections": {"cli": {"protocol": "ssh", "ip": dev_ip, "init_exec_commands": [], "init_config_commands": []}}, # Find a better way to do this: https://github.com/CiscoTestAutomation/genielibs/issues/12
+                    "credentials": {
+                        "default": {
+                            "username": cli_username,
+                            "password": cli_password,
+                        }
+                    },
+                    "type": "Device",
+                    "os": "iosxe"
+                }
+            }
+        }
+    )
+    atsdevice = testbed.devices[device["name"]]
+    atsdevice.connect(via='cli', log_stdout=True, learn_hostname=True, connection_timeout=10)
+
+    atsinterfaces = atsdevice.learn('interface')
+    return atsinterfaces.to_dict().get('info')
 
 def selected_site_format(option):
     return f'{option["name"]}({option["short"]})'
@@ -111,17 +136,17 @@ def selected_site_format(option):
 def selected_devices_format(option):
     return option["name"]
 
-def nb_if_patch():
+def nb_if_patch(intid, parameter, value):
     nb = pynetbox.api(st.session_state["netbox_url"], token=st.session_state["netbox_token"])  # Read only token
     nb.http_session.verify = False
-    #st.sidebar.write(updateif)
-    for interface in updateif:
-        #st.stop()
-        nbif = nb.dcim.interfaces.get(interface["nb_id"])
-        nbif.description = interface["nap_desc"]
-        saved = nbif.save()
-        st.sidebar.write(saved)
-        st.sidebar.write(interface)
+    nbif_def = nb.dcim.interfaces.get(intid)
+    match parameter:
+        case "lag":
+            nbif_def.lag = value
+        case "name":
+            nbif_def.name = value
+    st.sidebar.write(f"{intid}: {parameter} = {value}")
+    nbif_def.save()
 
 def nb_if_add(deviceid, ifdata):
     nb = pynetbox.api(st.session_state["netbox_url"], token=st.session_state["netbox_token"])  # Read only token
@@ -176,6 +201,7 @@ if "netbox_url" in st.session_state and "netbox_token" in st.session_state:
     if st.sidebar.button("Reload NB sites"):
         nbwrapper_sites.clear()
         nbwrapper_devices.clear()
+        nbwrapper_interface.clear()
     selected_site = st.sidebar.selectbox("Select Site", options=newSite, format_func=selected_site_format, placeholder="Choose a site", index=None)
     allDevices = nbwrapper_devices(st.session_state["netbox_url"], st.session_state["netbox_token"], selected_site)
     newDevices = []
@@ -198,34 +224,7 @@ if "netbox_url" in st.session_state and "netbox_token" in st.session_state:
         for device in selected_devices:
             atsinterfaces = None
             try:
-                device_info = {
-                    'device_type': 'ios',
-                    'ip': device["ip"],
-                    'username': cli_username,
-                    'password': cli_password,
-                }
-                testbed = loader.load(
-                    {
-                        "devices": {
-                            device["name"]: {
-                                "connections": {"cli": {"protocol": "ssh", "ip": device_info["ip"], "init_exec_commands": [], "init_config_commands": []}}, # Find a better way to do this: https://github.com/CiscoTestAutomation/genielibs/issues/12
-                                "credentials": {
-                                    "default": {
-                                        "username": device_info["username"],
-                                        "password": device_info["password"],
-                                    }
-                                },
-                                "type": "Device",
-                                "os": "iosxe"
-                            }
-                        }
-                    }
-                )
-                atsdevice = testbed.devices[device["name"]]
-                atsdevice.connect(via='cli', log_stdout=True, learn_hostname=True, connection_timeout=10)
-
-                atsinterfaces = atsdevice.learn('interface')
-                atsinterfaces = atsinterfaces.to_dict().get('info')
+                atsinterfaces = atswrapper_interfaces(device["ip"], cli_username, cli_password)
 
 
             except Exception as error:
@@ -238,11 +237,18 @@ if "netbox_url" in st.session_state and "netbox_token" in st.session_state:
                 hcol1, hcol2, hcol3 = st.columns([3,1,1])
                 hcol1.subheader(f'{device["name"]}')
                 hcol2.link_button("Netbox", f'https://netbox.dccat.dk/dcim/devices/{device["id"]}/', use_container_width=True)
-                #fixall = hcol3.button("-> Fix all ->", key=f'{device["id"]}_sync_fixit', use_container_width=True, disabled=True)
+                fixall = hcol3.button("-> Fix all ->", key=f'{device["id"]}_sync_fixit', use_container_width=True, disabled=False)
                 ipData = []
                 allNbIf=nbwrapper_interface_all(device["id"])
                 for interface in atsinterfaces:
-                    st.write(interface)
+                    if (po := atsinterfaces[interface].get("port_channel")) and po.get("port_channel_member") == True and po.get('port_channel_int') is not None:
+                        nbpoif = nbwrapper_interface(st.session_state["netbox_url"], st.session_state["netbox_token"], device["id"], po.get('port_channel_int'))
+                        nbif = nbwrapper_interface(st.session_state["netbox_url"], st.session_state["netbox_token"], device["id"], interface)
+                        st.write(f"LAG: {interface} ({nbif.get('id')}) uses {po.get('port_channel_int')} ({nbpoif.get('id')})")
+                        if nbif.get("lag") == None:
+                            st.write(nbif.get("lag"))
+                            if fixall:
+                                nb_if_patch(nbif.get("id"), "lag", nbpoif.get("id"))
                 
                 
                 with st.expander(f'Raw Interface IP Data: {device["name"]}'):
