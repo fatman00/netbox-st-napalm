@@ -106,12 +106,23 @@ def nbwrapper_device(dev_name):
     
 @st.cache_data
 def atswrapper_bfd(dev_ip, cli_username, cli_password):
-    atsnbrs = None
+    atsbfd = None
     testbed = loader.load(
         {
             "devices": {
                 device["name"]: {
-                    "connections": {"cli": {"protocol": "ssh", "ip": dev_ip, "init_exec_commands": [], "init_config_commands": []}}, # Find a better way to do this: https://github.com/CiscoTestAutomation/genielibs/issues/12
+                    "connections": {
+                        "cli": {
+                            "protocol": "ssh",
+                            "ip": dev_ip,
+                            "init_exec_commands": [],
+                            "init_config_commands": []
+                        },
+                        "settings": {
+                            "GRACEFUL_DISCONNECT_WAIT_SEC": 1,
+                            "POST_DISCONNECT_WAIT_SEC": 1
+                        }
+                    }, # Find a better way to do this: https://github.com/CiscoTestAutomation/genielibs/issues/12
                     "credentials": {
                         "default": {
                             "username": cli_username,
@@ -125,20 +136,33 @@ def atswrapper_bfd(dev_ip, cli_username, cli_password):
         }
     )
     atsdevice = testbed.devices[device["name"]]
-    atsdevice.connect(via='cli', log_stdout=True, learn_hostname=True, connection_timeout=2)
+    atsdevice.connect(via='cli', log_stdout=True, learn_hostname=True, connection_timeout=10)
+    atsdevice.settings.GRACEFUL_DISCONNECT_WAIT_SEC = 0
+    atsdevice.settings.POST_DISCONNECT_WAIT_SEC  = 0
 
-    atsnbrs = atsdevice.parse('show bfd neighbors details')
+    atsbfd = atsdevice.parse('show bfd neighbors details')
     atsdevice.disconnect()
-    return atsnbrs
+    return atsbfd
 
 @st.cache_data
 def atswrapper_hsrp(dev_ip, cli_username, cli_password):
-    atsnbrs = None
+    atsbfd = None
     testbed = loader.load(
         {
             "devices": {
                 device["name"]: {
-                    "connections": {"cli": {"protocol": "ssh", "ip": dev_ip, "init_exec_commands": [], "init_config_commands": []}}, # Find a better way to do this: https://github.com/CiscoTestAutomation/genielibs/issues/12
+                    "connections": {
+                        "cli": {
+                            "protocol": "ssh",
+                            "ip": dev_ip,
+                            "init_exec_commands": [],
+                            "init_config_commands": []
+                        },
+                        "settings": {
+                            "GRACEFUL_DISCONNECT_WAIT_SEC": 1,
+                            "POST_DISCONNECT_WAIT_SEC": 1
+                        }
+                    }, # Find a better way to do this: https://github.com/CiscoTestAutomation/genielibs/issues/12
                     "credentials": {
                         "default": {
                             "username": cli_username,
@@ -152,20 +176,33 @@ def atswrapper_hsrp(dev_ip, cli_username, cli_password):
         }
     )
     atsdevice = testbed.devices[device["name"]]
-    atsdevice.connect(via='cli', log_stdout=True, learn_hostname=True, connection_timeout=2)
+    atsdevice.connect(via='cli', log_stdout=True, learn_hostname=True, connection_timeout=10)
+    atsdevice.settings.GRACEFUL_DISCONNECT_WAIT_SEC = 0
+    atsdevice.settings.POST_DISCONNECT_WAIT_SEC  = 0
 
-    atsnbrs = atsdevice.parse('show standby all')
+    atsbfd = atsdevice.parse('show standby all')
     atsdevice.disconnect()
-    return atsnbrs
+    return atsbfd
 
 @st.cache_data
 def atswrapper_int(dev_ip, cli_username, cli_password):
-    atsnbrs = None
+    atsbfd = None
     testbed = loader.load(
         {
             "devices": {
                 device["name"]: {
-                    "connections": {"cli": {"protocol": "ssh", "ip": dev_ip, "init_exec_commands": [], "init_config_commands": []}}, # Find a better way to do this: https://github.com/CiscoTestAutomation/genielibs/issues/12
+                    "connections": {
+                        "cli": {
+                            "protocol": "ssh",
+                            "ip": dev_ip,
+                            "init_exec_commands": [],
+                            "init_config_commands": []
+                        },
+                        "settings": {
+                            "GRACEFUL_DISCONNECT_WAIT_SEC": 1,
+                            "POST_DISCONNECT_WAIT_SEC": 1
+                        }
+                    }, # Find a better way to do this: https://github.com/CiscoTestAutomation/genielibs/issues/12
                     "credentials": {
                         "default": {
                             "username": cli_username,
@@ -179,19 +216,32 @@ def atswrapper_int(dev_ip, cli_username, cli_password):
         }
     )
     atsdevice = testbed.devices[device["name"]]
-    atsdevice.connect(via='cli', log_stdout=True, learn_hostname=True, connection_timeout=2)
+    atsdevice.connect(via='cli', log_stdout=True, learn_hostname=True, connection_timeout=10)
+    atsdevice.settings.GRACEFUL_DISCONNECT_WAIT_SEC = 0
+    atsdevice.settings.POST_DISCONNECT_WAIT_SEC  = 0
 
-    atsnbrs = atsdevice.parse('show interfaces')
+    atsbfd = atsdevice.parse('show interfaces')
     atsdevice.disconnect()
-    return atsnbrs
+    return atsbfd
 
 def atswrapper_config(dev_ip, cli_username, cli_password, configs):
-    atsnbrs = None
+    atsbfd = None
     testbed = loader.load(
         {
             "devices": {
                 device["name"]: {
-                    "connections": {"cli": {"protocol": "ssh", "ip": dev_ip, "init_exec_commands": [], "init_config_commands": []}}, # Find a better way to do this: https://github.com/CiscoTestAutomation/genielibs/issues/12
+                    "connections": {
+                        "cli": {
+                            "protocol": "ssh",
+                            "ip": dev_ip,
+                            "init_exec_commands": [],
+                            "init_config_commands": []
+                        },
+                        "settings": {
+                            "GRACEFUL_DISCONNECT_WAIT_SEC": 1,
+                            "POST_DISCONNECT_WAIT_SEC": 1
+                        }
+                    }, # Find a better way to do this: https://github.com/CiscoTestAutomation/genielibs/issues/12
                     "credentials": {
                         "default": {
                             "username": cli_username,
@@ -205,7 +255,9 @@ def atswrapper_config(dev_ip, cli_username, cli_password, configs):
         }
     )
     atsdevice = testbed.devices[device["name"]]
-    atsdevice.connect(via='cli', log_stdout=True, learn_hostname=True, connection_timeout=2)
+    atsdevice.connect(via='cli', log_stdout=True, learn_hostname=True, connection_timeout=10)
+    atsdevice.settings.GRACEFUL_DISCONNECT_WAIT_SEC = 0
+    atsdevice.settings.POST_DISCONNECT_WAIT_SEC  = 0
 
     atsdevice.configure(configs)
     atsdevice.disconnect()
