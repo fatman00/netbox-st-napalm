@@ -125,7 +125,7 @@ def atswrapper_bfd(dev_ip, cli_username, cli_password):
         }
     )
     atsdevice = testbed.devices[device["name"]]
-    atsdevice.connect(via='cli', log_stdout=True, learn_hostname=True, connection_timeout=10)
+    atsdevice.connect(via='cli', log_stdout=True, learn_hostname=True, connection_timeout=2)
 
     atsnbrs = atsdevice.parse('show bfd neighbors details')
     atsdevice.disconnect()
@@ -152,7 +152,7 @@ def atswrapper_hsrp(dev_ip, cli_username, cli_password):
         }
     )
     atsdevice = testbed.devices[device["name"]]
-    atsdevice.connect(via='cli', log_stdout=True, learn_hostname=True, connection_timeout=10)
+    atsdevice.connect(via='cli', log_stdout=True, learn_hostname=True, connection_timeout=2)
 
     atsnbrs = atsdevice.parse('show standby all')
     atsdevice.disconnect()
@@ -179,7 +179,7 @@ def atswrapper_int(dev_ip, cli_username, cli_password):
         }
     )
     atsdevice = testbed.devices[device["name"]]
-    atsdevice.connect(via='cli', log_stdout=True, learn_hostname=True, connection_timeout=10)
+    atsdevice.connect(via='cli', log_stdout=True, learn_hostname=True, connection_timeout=2)
 
     atsnbrs = atsdevice.parse('show interfaces')
     atsdevice.disconnect()
@@ -205,7 +205,7 @@ def atswrapper_config(dev_ip, cli_username, cli_password, configs):
         }
     )
     atsdevice = testbed.devices[device["name"]]
-    atsdevice.connect(via='cli', log_stdout=True, learn_hostname=True, connection_timeout=10)
+    atsdevice.connect(via='cli', log_stdout=True, learn_hostname=True, connection_timeout=2)
 
     atsdevice.configure(configs)
     atsdevice.disconnect()
