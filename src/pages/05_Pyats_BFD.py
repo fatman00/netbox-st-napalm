@@ -120,7 +120,7 @@ def atswrapper_bfd(dev_ip, cli_username, cli_password):
                         },
                         "settings": {
                             "GRACEFUL_DISCONNECT_WAIT_SEC": 1,
-                            "POST_DISCONNECT_WAIT_SEC": 1
+                            "POST_DISCONNECT_WAIT_SEC": 1 # Fix this: https://community.cisco.com/t5/tools/graceful-disconnect-wait-sec-does-not-work/m-p/5092505#M3524
                         }
                     }, # Find a better way to do this: https://github.com/CiscoTestAutomation/genielibs/issues/12
                     "credentials": {
