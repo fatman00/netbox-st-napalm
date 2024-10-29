@@ -284,7 +284,7 @@ if "netbox_url" in st.session_state and "netbox_token" in st.session_state:
                         newConnection['add_me'] = False
                     if len(newConnection.values()) == 8:
                         connections.append(newConnection)
-                cableUpdate = st.data_editor(connections, use_container_width=True)
+                cableUpdate = st.data_editor(connections, key=f'{device["id"]}_data_edit', use_container_width=True)
                 cableUpdate = [item for item in cableUpdate if item["add_me"]]
                 
                 with st.expander(f'Raw Interface IP Data: {device["name"]}'):
